@@ -1,41 +1,46 @@
 #include <stdio.h>
-#include <time.h>
+#include <sys/time.h>
 #include "analyzecache.h"
 
 int main(int argc, char *argv[])
 {
-    clock_t start, end;
+    struct timeval start, end;
     double secondsUsed;
-    char memory [6000000];
+    char memory [8000000];
     int i;
-     
-    for(i = 0; i < 6000000; i++) {
-        memory[i] = 'a';
+
+    for(i = 0; i < 8000000; i++) {
+        memory[i] = 'a' + i;
     }
     int temp = 0;
     int step = 1;
-    int j; 
-    for(step = 1; step < 10000; step = step * 2){ 
-        start = clock();
-        for(i = 0; i < 600; i++){
+    int j;
+    for(step = 2; step < 500; step = step * 2){ 
+        gettimeofday(&start,0);
+        int k = 0;
+        for(i = 0; i < 16000; i++){
             temp = temp + memory[i * step];
         }
-        end = clock();
+        gettimeofday(&end,0);
         printf("\n%d \n", step);
         printf("%d \n", temp);
-        secondsUsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+        printf("%d clock ticks\n", end);
+        secondsUsed = ((end.tv_sec-start.tv_sec)*1000000 + (end.tv_usec-start.tv_usec));
         printf("%f seconds \n", secondsUsed);
     }
-    for(j = 0; j < 400; j = j + 10){ 
-        start = clock();
+    step = 64;
+    for(j = 0; j < 10000; j = j + 100){
+        gettimeofday(&start,0);
+        int o;
+        for(o = 0; o < 10; o++){
         for(i = 0; i < j; i++){
             temp = temp + memory[i * step];
-        }
-        end = clock();
-        printf("\n%d lines\n", j);
-        printf("%d \n", temp);
-        secondsUsed = ((double) (end - start)) / CLOCKS_PER_SEC;
-        printf("%f seconds \n", secondsUsed);
+        }}
+        gettimeofday(&end,0);
+//        printf("\n%d lines\n", j);
+//        printf("%d \n", temp);
+//        secondsUsed = ((end.tv_sec-start.tv_sec)*1000000 + (end.tv_usec-start.tv_usec));
+        //printf("%f seconds \n", secondsUsed);
     }
     return 0;
 }
